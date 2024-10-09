@@ -1,4 +1,4 @@
-# Talk2Data_SnowflakeAI
+# Talk2Data_SnowflakeAI (SnowMate)
 
 Here’s a sample `README.md` file for your generative AI application:
 
