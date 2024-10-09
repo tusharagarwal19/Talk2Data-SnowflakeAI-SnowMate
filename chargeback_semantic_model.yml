@@ -1,0 +1,255 @@
+name: sf_metadata
+tables:
+  - name: chargeback
+    description: Table used to chargeback domains for their Snowflkae consumption
+    base_table:
+      database: PUBLIC_DB
+      schema: PUBLIC
+      table: chargeback_data
+    dimensions:
+      - name: WAREHOUSE_NAME
+        synonyms:
+          - COMPUTE
+          - VWH
+          - COMPUTE NAME
+          - VWH NAME
+        description: Name of the warehouse where the compute usage data was recorded.
+        expr: WAREHOUSE_NAME
+        data_type: TEXT
+        sample_values:
+          - RAD_WH
+          - COMPUTE_WH
+          - FSA_WH
+      - name: USER_NAME
+        synonyms:
+          - USER
+          - END USERS
+          - USER TYPE
+        description: Name of the users using the compute or virtual warehouse to execute
+          queries.
+        expr: USER_NAME
+        data_type: TEXT
+        sample_values:
+          - RAD_USER
+          - ESG_USER
+          - FSA_USER
+      - name: QUERY_TYPE
+        synonyms:
+          - Type of query
+          - Read queries
+          - BI Queries
+          - End user queries
+          - Type of queries
+        description: Type of the query or queries executed by the end users or the
+          applications or warehouse or a role etc.
+        expr: QUERY_TYPE
+        data_type: TEXT
+        sample_values:
+          - SELECT
+          - CALL
+          - UPDATE
+          - INSERT
+          - DELETE
+      - name: ROLE_NAME
+        synonyms:
+          - Role name
+          - Name of a Snowflake role
+          - Type of a role
+        description: Name or type of role used to execute a query or multiple queries
+          or SQL requests on Snowflake databases by users or applications or warehouses
+          etc.
+        expr: ROLE_NAME
+        data_type: TEXT
+        sample_values:
+          - ACCOUNTADMIN
+          - RAD_ROLE
+          - ESG_ROLE
+      - name: DOMAIN_NAME
+        synonyms:
+          - Domain name
+          - Division Name
+          - Spoke Name
+          - Team name
+        description: name of the team, division or domain within the Snowflake account.
+          The name is following a naming convention where first three characters from  warehouse
+          name or role name define the domain or team.
+        expr: DOMAIN_NAME
+        data_type: TEXT
+        sample_values:
+          - ESG
+          - RAD
+          - FSA
+      - name: WAREHOUSE_SIZE
+        synonyms:
+          - Warehouse Size
+          - Size of warehouse
+          - Size of virtual warehouse
+          - Virtual warehouse size
+          - VWH size
+        description: Size of the virtual warehouse or warehouse used for a running
+          a particular query by a user or warehouse or application
+        expr: WAREHOUSE_SIZE
+        data_type: TEXT
+        sample_values:
+          - XL
+          - S
+          - XXXL
+          - L
+          - XXXXL
+          - M
+          - XXL
+          - XS
+    time_dimensions:
+      - name: START_TIME
+        synonyms:
+          - START DATE
+          - USAGE DATE
+        description: Start time of the user query.
+        expr: START_TIME
+        data_type: TIMESTAMP_LTZ
+        sample_values:
+          - '2024-09-29 04:00:00-07:00'
+          - '2024-10-01 23:00:00-07:00'
+          - '2024-09-29 03:00:00-07:00'
+    measures:
+      - name: credits_attributed_compute
+        synonyms:
+          - Cost Per Query
+          - Query Cost
+        description: Cost per user Query
+        expr: credits_attributed_compute
+        data_type: NUMBER
+        sample_values:
+          - '0.00021789'
+          - '0.00332694'
+      - name: total_elapsed_time
+        synonyms:
+          - Query Time
+        description: Query execution time in millisecond
+        expr: total_elapsed_time
+        data_type: NUMBER
+        sample_values:
+          - '100'
+          - '200'
+          - '1'
+verified_queries:
+  - name: Give me the total snowflake cost attribution based on query_type over the
+      entire available time period.
+    question: Give me the total snowflake cost attribution based on query_type over
+      the entire available time period.
+    sql: "SELECT\n  query_type,\n  MIN(start_time) AS start_date,\n  MAX(start_time)
+      AS end_date,\n  SUM(credits_attributed_compute) AS total_cost\nFROM __chargeback\n
+      GROUP BY\n  query_type\nORDER BY\n  total_cost DESC NULLS LAST"
+    verified_at: '1728393493'
+    verified_by: TUSHARAGARWAL19
+  - name: Give me the total credits spent by query type over the entire available
+      time period.
+    question: Give me the total credits spent by query type over the entire available
+      time period.
+    sql: "SELECT\n  query_type,\n  SUM(credits_attributed_compute) AS total_credits_spent,\n\
+      \  MIN(start_time) AS start_date,\n  MAX(start_time) AS end_date\nFROM __chargeback\n
+      GROUP BY\n  query_type\nORDER BY\n  total_credits_spent DESC NULLS LAST"
+    verified_at: '1728393557'
+    verified_by: TUSHARAGARWAL19
+  - name: Tell me how many credits were consumed by each role over the entire available
+      time period.
+    question: Tell me how many credits were consumed by each role over the entire
+      available time period.
+    sql: "SELECT\n  role_name,\n  SUM(credits_attributed_compute) AS total_credits_consumed,\n\
+      \  MIN(start_time) AS start_date,\n  MAX(start_time) AS end_date\nFROM __chargeback\n
+      GROUP BY\n  role_name\nORDER BY\n  total_credits_consumed DESC NULLS LAST"
+    verified_at: '1728393868'
+    verified_by: TUSHARAGARWAL19
+  - name: Show me the total credits consumed by each warehouse over the entire available
+      time period.
+    question: Show me the total credits consumed by each warehouse over the entire
+      available time period.
+    sql: "SELECT\n  warehouse_name,\n  SUM(credits_attributed_compute) AS total_credits_consumed,\n\
+      \  MIN(start_time) AS start_date,\n  MAX(start_time) AS end_date\nFROM __chargeback\n
+      GROUP BY\n  warehouse_name\nORDER BY\n  total_credits_consumed DESC NULLS LAST"
+    verified_at: '1728395526'
+    verified_by: TUSHARAGARWAL19
+  - name: Show me the daily credits consumed by each warehouse over the entire available
+      time period.
+    question: Show me the daily credits consumed by each warehouse over the entire
+      available time period.
+    sql: "SELECT\n  warehouse_name,\n  DATE_TRUNC('DAY', start_time) AS day,\n  SUM(credits_attributed_compute)
+      AS total_credits_consumed,\n  MIN(start_time) AS start_date,\n  MAX(start_time)
+      AS end_date\nFROM __chargeback\nGROUP BY\n  warehouse_name,\n  DATE_TRUNC('DAY',
+      start_time)\nORDER BY\n  day DESC NULLS LAST"
+    verified_at: '1728395588'
+    verified_by: TUSHARAGARWAL19
+  - name: Show me the user who spent the maximum total credits in the current month.
+    question: Show me the user who spent the maximum total credits in the current
+      month.
+    sql: "SELECT\n  user_name,\n  SUM(credits_attributed_compute) AS total_credits_spent\n
+      FROM __chargeback\nWHERE\n  DATE_TRUNC('MONTH', start_time) = DATE_TRUNC('MONTH',
+      CURRENT_DATE)\nGROUP BY\n  user_name\nORDER BY\n  total_credits_spent DESC NULLS
+      LAST\nLIMIT 1"
+    verified_at: '1728395852'
+    verified_by: TUSHARAGARWAL19
+  - name: Show me the user who spent the maximum total credits in the last 3 months.
+    question: Show me the user who spent the maximum total credits in the last 3 months.
+    sql: "SELECT\n  user_name,\n  SUM(credits_attributed_compute) AS total_credits_spent\n
+      FROM __chargeback\nWHERE\n  start_time >= DATE_TRUNC('MONTH', CURRENT_DATE -
+      INTERVAL '3 MONTH')\n  AND start_time < DATE_TRUNC('MONTH', CURRENT_DATE)\n
+      GROUP BY\n  user_name\nORDER BY\n  total_credits_spent DESC NULLS LAST\nLIMIT
+      1"
+    verified_at: '1728395905'
+    verified_by: TUSHARAGARWAL19
+  - name: List all the unique domains in the Snowflake account over the entire available
+      time period.
+    question: List all the unique domains in the Snowflake account over the entire
+      available time period.
+    sql: "SELECT DISTINCT\n  domain_name\nFROM __chargeback"
+    verified_at: '1728397691'
+    verified_by: TUSHARAGARWAL19
+  - name: Show me the total credits consumed by the RAD domain over the entire available
+      time period.
+    question: Show me the total credits consumed by the RAD domain over the entire
+      available time period.
+    sql: "SELECT\n  domain_name,\n  SUM(credits_attributed_compute) AS total_credits_consumed,\n\
+      \  MIN(start_time) AS start_date,\n  MAX(start_time) AS end_date\nFROM __chargeback\n\
+      WHERE\n  domain_name = 'RAD'\nGROUP BY\n  domain_name\nORDER BY\n  total_credits_consumed
+      DESC NULLS LAST"
+    verified_at: '1728397729'
+    verified_by: TUSHARAGARWAL19
+  - name: Which users are submitting queries for the RAD domain over the entire available
+      time period?
+    question: Which users are submitting queries for the RAD domain over the entire
+      available time period?
+    sql: "SELECT DISTINCT\n  user_name,\n  MIN(start_time) AS start_date,\n  MAX(start_time)
+      AS end_date\nFROM __chargeback\nWHERE\n  domain_name = 'RAD'\nGROUP BY\n  user_name\n
+      ORDER BY\n  start_date DESC"
+    verified_at: '1728397763'
+    verified_by: TUSHARAGARWAL19
+  - name: Give me the total credit consumption by domain, warehouse size, and warehouse
+      name over the entire available time period.
+    question: Give me the total credit consumption by domain, warehouse size, and
+      warehouse name over the entire available time period.
+    sql: "SELECT\n  domain_name,\n  warehouse_size,\n  warehouse_name,\n  SUM(credits_attributed_compute)
+      AS total_credits_consumed,\n  MIN(start_time) AS start_date,\n  MAX(start_time)
+      AS end_date\nFROM __chargeback\nGROUP BY\n  domain_name,\n  warehouse_size,\n\
+      \  warehouse_name\nORDER BY\n  total_credits_consumed DESC NULLS LAST"
+    verified_at: '1728460998'
+    verified_by: TUSHARAGARWAL19
+  - name: What is the maximum total credits consumption of each domain during the
+      last month?
+    question: What is the maximum total credits consumption of each domain during
+      the last month?
+    sql: "SELECT\n  domain_name,\n  SUM(credits_attributed_compute) AS total_credits_consumed\n
+      FROM __chargeback\nWHERE\n  start_time >= DATE_TRUNC('MONTH', CURRENT_DATE -
+      INTERVAL '1 MONTH')\n  AND start_time < DATE_TRUNC('MONTH', CURRENT_DATE)\n
+      GROUP BY\n  domain_name\nORDER BY\n  total_credits_consumed DESC NULLS LAST"
+    verified_at: '1728461120'
+    verified_by: TUSHARAGARWAL19
+  - name: Give me the user names who used XXXL warehouse size during the last month
+      and the dates when they used them.
+    question: Give me the user names who used XXXL warehouse size during the last
+      month and the dates when they used them.
+    sql: "SELECT\n  user_name,\n  start_time\nFROM __chargeback\nWHERE\n  warehouse_size
+      = 'XXXL'\n  AND start_time >= DATE_TRUNC('MONTH', CURRENT_DATE - INTERVAL '1
+      MONTH')\n  AND start_time < DATE_TRUNC('MONTH', CURRENT_DATE)\nORDER BY\n  start_time
+      DESC"
+    verified_at: '1728461279'
+    verified_by: TUSHARAGARWAL19
