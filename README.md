@@ -79,17 +79,15 @@ This is a generative AI application built using **Cortex Analyst** of Snowflake 
    https://github.com/tusharagarwal19/Talk2Data_SnowflakeAI
    ```
 
-2. Install required packages:
+2. Install required packages: in your local Python environment
    ```bash
    pip install .
    pip install streamlit snowflake-snowpark-python ```
 
-  in your local Python environment
-   
 
-3. Open up the cortex_analyst_streamlit.py file in your preferred local code editor
-Modify the following parameters with your respective account information: HOST, user, password, and account information
-Run the Streamlit app using streamlit run cortex_analyst_streamlit.py
+3. Open up the ```bash cortex_analyst_streamlit.py ``` file in your preferred local code editor
+Modify the following parameters with your respective account information: ```bash HOST, user, password, and account information ```
+Run the Streamlit app using streamlit run ```bash cortex_analyst_streamlit.py ```
 
 ### Usage
 
