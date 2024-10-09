@@ -86,9 +86,10 @@ This is a generative AI application built using **Cortex Analyst** of Snowflake 
 
 3. Prepare Snowflake schema and data using the below SQL scripts
    ```bash ./src/cortex_schema.sql ```
+   ```bash ./src/fake_function.sql ```
    ```bash ./data/ ```
 
-4. Open up the ```bash cortex_analyst_streamlit.py ``` file in your preferred local code editor
+5. Open up the ```bash cortex_analyst_streamlit.py ``` file in your preferred local code editor
 Modify the following parameters with your respective account information: ```bash HOST, user, password, and account information ```
 Run the Streamlit app using streamlit run ```streamlit run cortex_analyst_streamlit.py ```
 This will open Streamlit app on your localhost environment
