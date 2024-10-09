@@ -76,7 +76,7 @@ This is a generative AI application built using **Cortex Analyst** of Snowflake 
 
 1. Clone the repository:
    ```bash
-   git clone <repo-url>
+   [git clone <repo-url>](https://github.com/tusharagarwal19/Talk2Data_SnowflakeAI)
    ```
 
 2. Install required packages:
