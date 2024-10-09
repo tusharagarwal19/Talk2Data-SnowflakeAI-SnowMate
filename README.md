@@ -84,10 +84,16 @@ This is a generative AI application built using **Cortex Analyst** of Snowflake 
    pip install .
    pip install streamlit snowflake-snowpark-python ```
 
+3. Prepare Snowflake schema and data using the below SQL scripts
+   ```bash ./src/ ```
+   ```bash ./data/ ```
 
-3. Open up the ```bash cortex_analyst_streamlit.py ``` file in your preferred local code editor
+4. Open up the ```bash cortex_analyst_streamlit.py ``` file in your preferred local code editor
 Modify the following parameters with your respective account information: ```bash HOST, user, password, and account information ```
-Run the Streamlit app using streamlit run ```bash cortex_analyst_streamlit.py ```
+Run the Streamlit app using streamlit run ```streamlit run cortex_analyst_streamlit.py ```
+This will open Streamlit app on your localhost environment
+
+<img width="379" alt="image" src="https://github.com/user-attachments/assets/12316a80-b92e-405f-8258-3944bca1c41f">
 
 ### Usage
 
